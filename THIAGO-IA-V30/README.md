@@ -1,14 +1,11 @@
-# THIAGO IA V30.8
+# THIAGO IA V31 — flujo simple de imágenes
 
-Actualización sobre V30.7, conservando sus funciones.
-
-## Cambios
-- Paneles más transparentes para resaltar el fondo sin cambiar su encuadre.
-- Pegar imágenes desde el portapapeles con Ctrl+V. La imagen solo se adjunta; no se procesa hasta escribir una instrucción y enviarla.
-- Investigación con formato limpio: numeración 1., 2., 3. y puntuación normal, sin asteriscos decorativos.
-- Exportación real y descargable a Word (.docx), Excel (.xlsx), PDF (.pdf) y PowerPoint (.pptx).
-- Si el usuario dice “ahora pásamelo a Word/Excel/PDF/PowerPoint”, usa el último resultado de la conversación.
-- Si pide contenido y formato en la misma instrucción, primero genera el contenido y luego crea el archivo.
-
-## Render
-No contiene claves. Mantener OPENAI_API_KEY y OPENAI_MODEL en Environment de Render. `npm install` instalará las dependencias nuevas automáticamente.
+Cambios principales:
+- Un solo flujo: adjunta/pega imagen + escribe instrucción + Enter.
+- Sin botones de Generar/Modificar/Restaurar en el chat; THIAGO IA decide si editar o generar.
+- Una imagen adjunta siempre se procesa como edición estricta de la original.
+- La imagen original se muestra arriba y la instrucción debajo antes del resultado.
+- El historial ya no guarda imágenes Base64 en localStorage, evitando `thiago_history excedió la cuota`.
+- Historial y conversaciones usan guardado seguro y reducido.
+- Errores de saldo/límite del proveedor se distinguen del porcentaje diario de THIAGO IA.
+- Se conservan investigación, OCR, traducción, archivos descargables, planes, vencimientos y administración.
