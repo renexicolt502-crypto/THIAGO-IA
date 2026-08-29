@@ -20,3 +20,7 @@ Variables: `OPENAI_API_KEY`, `OPENAI_MODEL=gpt-5.4`, `ADMIN_KEY`.
 `data.json` es almacenamiento local de esta primera entrega. En Render puede reiniciarse al redeploy/restart. Antes de usar con clientes reales, conectar una base de datos persistente (PostgreSQL).
 
 Si `ADMIN_KEY` no está configurada, la clave temporal de desarrollo es `THIAGO2026`. Configure `ADMIN_KEY` en Render antes de uso real.
+
+
+## V30.3 - Selección de planes
+Los planes públicos ahora son seleccionables. La elección se conserva durante el acceso por correo/código y, al verificar el código, se crea automáticamente una solicitud de plan pendiente de aprobación del administrador.
