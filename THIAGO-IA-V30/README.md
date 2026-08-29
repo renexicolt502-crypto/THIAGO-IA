@@ -7,3 +7,5 @@ Correcciones funcionales:
 - Mi cuenta muestra datos reales del cliente, plan, consumo, vencimiento, idioma y fechas.
 - Historial permite abrir, eliminar individualmente y eliminar todo con confirmación.
 - Se conserva el mensaje amigable cuando el proveedor de IA no está disponible.
+
+V32.2: diseño premium neón aplicado al acceso, cliente y administrador; planes públicos rediseñados con detalle de funciones.
