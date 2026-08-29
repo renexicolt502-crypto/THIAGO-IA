@@ -1,11 +1,8 @@
-# THIAGO IA V32.1
+# THIAGO IA V32.3 — NEÓN PREMIUM TOTAL
 
-Correcciones funcionales:
-- Planes ya abre correctamente y muestra BÁSICO Q85, PRO Q180 y NEGOCIO Q300.
-- Cambiar/renovar plan funciona desde Plan Activo, Planes y Mi cuenta.
-- Renovar el mismo plan extiende 30 días al aprobarse.
-- Mi cuenta muestra datos reales del cliente, plan, consumo, vencimiento, idioma y fechas.
-- Historial permite abrir, eliminar individualmente y eliminar todo con confirmación.
-- Se conserva el mensaje amigable cuando el proveedor de IA no está disponible.
+Actualización visual construida sobre V32.2.
 
-V32.2: diseño premium neón aplicado al acceso, cliente y administrador; planes públicos rediseñados con detalle de funciones.
+- Conserva todas las funciones y lógica existentes de V32.2.
+- Extiende la identidad NEÓN PREMIUM a todo el cliente: área de trabajo, chat, herramientas, historial, planes, mi cuenta e idioma.
+- Extiende la misma identidad visual a todo el panel administrativo: dashboard, solicitudes, usuarios, pagos, renovaciones y configuración.
+- Mantiene precios, planes, historial, cuenta, vectorización y comportamiento existente sin cambios funcionales.
