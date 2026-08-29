@@ -131,3 +131,33 @@
 .main.work-mode>.client-hero{display:block!important}.main.work-mode{padding:18px 28px!important}.main.work-mode .transparent-workspace{width:min(980px,calc(100vw - 330px))!important;max-width:980px!important;margin:0 auto!important}
 @media(max-width:1100px){.feature-strip{grid-template-columns:repeat(3,1fr)}.transparent-workspace,.main.work-mode .transparent-workspace{width:min(820px,calc(100vw - 280px))!important}.composer-dock{width:min(760px,calc(100vw - 310px))}}
 @media(max-width:850px){.feature-strip{grid-template-columns:repeat(2,1fr)}.transparent-workspace,.main.work-mode .transparent-workspace{width:100%!important}.composer-dock{left:50%;width:calc(100vw - 24px)}.dock-tools span{display:none}}
+
+/* V31.9 — mensajes de imagen discretos y transparentes */
+.msg.me.image-request,.main.work-mode .msg.me.image-request{
+  background:rgba(8,14,30,.28)!important;
+  border:1px solid rgba(166,108,255,.28)!important;
+  backdrop-filter:blur(7px)!important;
+  box-shadow:0 6px 20px rgba(0,0,0,.22)!important;
+  padding:8px!important;
+  width:fit-content!important;
+  max-width:340px!important;
+}
+.image-request .original-preview{
+  max-width:190px!important;
+  max-height:230px!important;
+  border-radius:10px!important;
+  display:block!important;
+  margin-left:auto!important;
+}
+.image-request .request-text{
+  margin-top:6px!important;
+  font-size:11px!important;
+  line-height:1.35!important;
+  color:#d9deef!important;
+  max-width:260px!important;
+  text-transform:none!important;
+}
+.msg.ai{font-size:13px!important;line-height:1.5!important}
+.msg .generated{max-width:240px!important;max-height:310px!important}
+.chat-history-card{cursor:pointer!important}
+.chat-history-card.current-chat{border-color:rgba(139,108,255,.42)!important}

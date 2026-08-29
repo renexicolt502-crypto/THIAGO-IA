@@ -1,3 +1,2 @@
-# THIAGO IA V31.8 — Transparente Referencia
-
-Interfaz transparente sobre el fondo original, área centrada que no se expande al escribir, barra inferior flotante, accesos rápidos, imágenes compactas y conservación de las funciones de V31.7 (medidas solicitadas, idioma, Word Arial 12, arrastrar/Ctrl+V y vectorización premium).
+# THIAGO IA V31.9
+Correcciones: precios BÁSICO Q85 / PRO Q180 / NEGOCIO Q300; vectorización en PRO y NEGOCIO; historial actual abrible y continuable; adjuntos se limpian al enviar; mensajes de imagen compactos y transparentes; refuerzo de edición sin recorte; conserva diseño transparente V31.8.
