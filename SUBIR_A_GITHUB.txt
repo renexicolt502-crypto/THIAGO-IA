@@ -1,0 +1,26 @@
+THIAGO IA - ARCHIVOS LISTOS PARA GITHUB
+
+SUBIR A LA RAÍZ DEL REPOSITORIO:
+- server.js
+- package.json
+- render.yaml
+- .gitignore
+- README.md
+- carpeta public/
+
+DENTRO DE public/:
+- index.html
+
+IMPORTANTE:
+- NO suba ningún archivo .env.
+- NO pegue su clave API en GitHub.
+- La clave OPENAI_API_KEY se agrega después en Render como variable de entorno secreta.
+
+Después de subir:
+1. Confirme los cambios en GitHub.
+2. Regrese a Render.
+3. Seleccione el repositorio THIAGO-IA.
+4. Render debería detectar Node.
+5. Build: npm install
+6. Start: npm start
+7. Agregar OPENAI_API_KEY en Environment.
