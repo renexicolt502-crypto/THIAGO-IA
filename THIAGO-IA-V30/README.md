@@ -1,26 +1,20 @@
-# THIAGO IA V30.1
+# THIAGO IA V30.4 — Herramientas recuperadas
 
-Base modular funcional para Render/GitHub.
+Actualización sobre V30.3. Conserva acceso por correo/código, administrador, planes seleccionables y aprobación/rechazo.
 
-## Incluye
-- Acceso de cliente por correo + código temporal de 6 dígitos (10 minutos, un uso).
-- Registro de cliente nuevo.
-- Panel Cliente con chat IA, plan activo, cambio de plan y cierre de sesión.
-- Panel Administrador con solicitudes de acceso, usuarios, solicitudes de plan, renovaciones, pagos/configuración base y cierre de sesión.
-- Aprobación/rechazo de cambio de plan; al aprobar activa 30 días.
-- OpenAI solo desde backend mediante OPENAI_API_KEY.
-- Fondo original en `public/assets/fondo.png`.
+## Cliente
+- Chat IA
+- Adjuntar imágenes, PDF y documentos
+- Investigación
+- Generación de imágenes
+- Herramienta de modificación/análisis de imagen
+- OCR / extracción de texto
+- Traducción y corrección
+- Historial local
+- Plan activo, vencimiento y cambio de plan
 
 ## Render
-Build: `npm install`
-Start: `npm start`
-Variables: `OPENAI_API_KEY`, `OPENAI_MODEL=gpt-5.4`, `ADMIN_KEY`.
+Mantener Root Directory: `THIAGO-IA-V30` cuando se suba el contenido de esta carpeta dentro de esa ruta del repositorio.
+Variables: `OPENAI_API_KEY`, `OPENAI_MODEL`. Opcional: `OPENAI_IMAGE_MODEL=gpt-image-1`, `ADMIN_KEY`.
 
-## Importante
-`data.json` es almacenamiento local de esta primera entrega. En Render puede reiniciarse al redeploy/restart. Antes de usar con clientes reales, conectar una base de datos persistente (PostgreSQL).
-
-Si `ADMIN_KEY` no está configurada, la clave temporal de desarrollo es `THIAGO2026`. Configure `ADMIN_KEY` en Render antes de uso real.
-
-
-## V30.3 - Selección de planes
-Los planes públicos ahora son seleccionables. La elección se conserva durante el acceso por correo/código y, al verificar el código, se crea automáticamente una solicitud de plan pendiente de aprobación del administrador.
+Nota: `data.json` es almacenamiento local del servidor para prototipo. Para producción se recomienda base de datos persistente y envío real de códigos por correo/WhatsApp.
