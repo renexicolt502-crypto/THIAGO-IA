@@ -1,12 +1,12 @@
-# THIAGO IA V31.2
+# THIAGO IA V31.4 — Idioma fijo
 
-Cambios principales:
-- Plan activo, Imágenes hoy y Vencimiento pasan a la columna izquierda.
-- Saludo permanece centrado.
-- Lienzo de trabajo ocupa el espacio derecho disponible.
-- Al adjuntar una imagen se muestra una previsualización real, no solo el nombre del archivo.
-- La previsualización usa contain y respeta vertical/horizontal.
-- Antes de editar, el navegador detecta ancho, alto, orientación y relación de aspecto.
-- El servidor usa salida vertical para fuente vertical, horizontal para fuente horizontal y cuadrada para cuadrada.
-- Prompt de edición prohíbe recorte/zoom y prioriza ampliar lienzo antes que perder contenido.
-- El modo de trabajo se activa al enfocar el cuadro de escritura.
+Cambios:
+- Español queda como idioma predeterminado.
+- Nuevo apartado "Idioma" en el menú del cliente.
+- El idioma elegido se guarda en el navegador y permanece en próximas sesiones.
+- Chat, investigación y documentos responden en el idioma seleccionado, salvo que el usuario pida explícitamente otro idioma.
+- Traducción respeta el idioma destino solicitado.
+- Conserva arrastrar/soltar imágenes, Ctrl+V, lienzo amplio y preservación de orientación de V31.3.
+
+
+V31.5: Los documentos Word generados usan Arial tamaño 12 por defecto en todo el contenido.
