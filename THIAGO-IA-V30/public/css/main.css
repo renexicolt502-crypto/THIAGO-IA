@@ -32,3 +32,41 @@
 
 /* V30.9: vista clara de imagen original + solicitud */
 .image-request{display:flex!important;flex-direction:column;gap:10px;align-items:flex-start;max-width:min(680px,92%)!important}.original-preview{display:block;max-width:100%;max-height:460px;object-fit:contain;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.18)}.request-text{width:100%;padding-top:4px}
+
+/* V31.1: Inicio elegante -> área de trabajo amplia al comenzar a escribir */
+.main.work-mode{padding-top:18px;padding-right:22px;padding-bottom:18px}
+.main.work-mode>.hero,.main.work-mode>.grid,.main.work-mode>.expiry-alert{display:none!important}
+.main.work-mode .workspace{max-width:none!important;width:100%;margin:0!important;min-height:calc(100vh - 86px);display:flex;flex-direction:column;padding:18px 22px}
+.main.work-mode .messages{flex:1;max-height:none!important;min-height:calc(100vh - 340px);overflow:auto;padding:8px 4px 18px}
+.main.work-mode .msg{max-width:min(900px,88%)}
+.main.work-mode .msg.ai{align-self:flex-start}
+.main.work-mode .image-request{max-width:min(980px,92%)!important}
+.original-preview,.generated{width:auto!important;height:auto!important;max-width:100%!important;object-fit:contain!important;object-position:center!important}
+.original-preview{max-height:72vh!important}
+.main.work-mode .generated{max-height:78vh!important}
+.main.work-mode .composer.big{position:sticky;bottom:0;z-index:5;width:100%}
+@media(max-width:850px){.main.work-mode{padding:12px}.main.work-mode .workspace{min-height:calc(100vh - 70px);padding:12px}.main.work-mode .messages{min-height:calc(100vh - 300px)}.main.work-mode .msg{max-width:96%}}
+
+/* V31.2: métricas a la izquierda + lienzo grande + previsualización real */
+.shell{grid-template-columns:300px minmax(0,1fr)!important}
+.side{height:100vh;overflow-y:auto;position:sticky;top:0;padding-bottom:18px!important}
+.side-stats{display:grid;gap:10px;margin-top:24px}
+.side-stat.card{padding:15px!important;border-radius:16px!important;box-shadow:none!important}
+.side-stat .stat{font-size:22px;margin-top:5px}
+.side-stat .link{font-size:12px;margin-top:7px;padding:0}
+.side-stat .usage-track{height:9px;margin:8px 0}
+.client-hero{text-align:center;margin:0 auto 14px}
+.client-hero h1{font-size:36px}
+.workspace{max-width:none!important;width:100%!important;margin:12px 0 0!important;min-height:calc(100vh - 175px);display:flex;flex-direction:column}
+.messages{width:100%;flex:1}
+.attachment-preview{display:inline-flex;flex-direction:column;gap:7px;padding:8px;border:1px solid #ffffff1c;border-radius:16px;background:rgba(5,8,20,.32);max-width:min(520px,100%)}
+.attachment-preview img{display:block;width:auto;height:auto;max-width:100%;max-height:52vh;object-fit:contain!important;object-position:center;border-radius:12px}
+.attachment-preview>div{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:#cdd3e8}
+.attachment-preview button{border:0;background:#ffffff12;color:#fff;border-radius:50%;width:26px;height:26px;cursor:pointer}
+.attach-list{margin:10px 0}
+.main.work-mode>.client-hero{display:block!important;text-align:center;margin-bottom:12px}
+.main.work-mode .workspace{min-height:calc(100vh - 165px)!important}
+.main.work-mode .messages{min-height:calc(100vh - 395px)!important}
+.image-request .original-preview,.msg .generated{object-fit:contain!important;width:auto!important;height:auto!important;max-width:100%!important}
+@media(max-width:1050px){.shell{grid-template-columns:250px minmax(0,1fr)!important}.side-stat.card{padding:12px!important}}
+@media(max-width:850px){.shell{grid-template-columns:1fr!important}.side{display:none}.workspace{min-height:auto}}
