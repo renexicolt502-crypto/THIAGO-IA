@@ -1223,6 +1223,15 @@ function adminNav(section,el){
     extra.innerHTML=`<div class="panelHead"><h3>⚙ Configuración</h3><span class="mini">Opciones del administrador</span></div><div class="requestItem"><div><b>THIAGO IA</b><div class="mini">Panel administrativo activo</div></div><div><span class="state">ACTIVO</span></div></div><div class="note" style="margin-top:14px">La clave del administrador y otras opciones avanzadas se configurarán de forma segura desde el servidor.</div>`;
   }
 }
+function clientLogout(){
+  db.currentClient=null; save();
+  document.getElementById('clientArea')?.classList.add('hidden');
+  document.getElementById('adminShell')?.classList.add('hidden');
+  document.getElementById('publicApp')?.classList.add('hidden');
+  document.getElementById('loginScreen')?.classList.remove('hidden');
+  setLoginMode('client');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 function adminLogout(){
   db.currentClient=null; save();
   document.getElementById('adminShell').classList.add('hidden');
