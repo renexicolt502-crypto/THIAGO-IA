@@ -1,6 +1,6 @@
 {
   "name": "thiago-ia-v30",
-  "version": "30.4.0",
+  "version": "30.6.0",
   "private": true,
   "scripts": {
     "start": "node server.js"
