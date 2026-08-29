@@ -1,17 +1,14 @@
 {
-  "name": "thiago-ia",
-  "version": "25.0.0",
+  "name": "thiago-ia-v30",
+  "version": "30.8.0",
   "private": true,
-  "type": "module",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
-  },
+  "scripts": {"start": "node server.js"},
   "dependencies": {
-    "dotenv": "^16.4.7",
+    "docx": "^9.5.1",
+    "exceljs": "^4.4.0",
     "express": "^5.1.0",
-    "express-rate-limit": "^7.5.0",
-    "helmet": "^8.1.0",
-    "openai": "^5.20.0"
+    "openai": "^5.12.2",
+    "pdfkit": "^0.17.1",
+    "pptxgenjs": "^3.12.0"
   }
 }

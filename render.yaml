@@ -10,3 +10,5 @@ services:
         sync: false
       - key: OPENAI_MODEL
         value: gpt-5.4
+      - key: ADMIN_KEY
+        sync: false

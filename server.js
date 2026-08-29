@@ -1,114 +1,36 @@
-import 'dotenv/config';
-import express from 'express';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import OpenAI from 'openai';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const express=require('express'); const path=require('path'); const fs=require('fs'); const crypto=require('crypto');
+const app=express(); app.use(express.json({limit:'10mb'})); app.use(express.static(path.join(__dirname,'public')));
+const DB=path.join(__dirname,'data.json');
+function load(){let db;try{db=JSON.parse(fs.readFileSync(DB,'utf8'))}catch{db={users:[],codes:[],planRequests:[],payments:[]}};db.users||=[];db.codes||=[];db.planRequests||=[];db.payments||=[];expirePlans(db);return db}
+function expirePlans(db){const now=Date.now();for(const u of (db.users||[])){if(u.plan&&u.planExpires&&new Date(u.planExpires).getTime()<=now){u.planStatus='expired'}else if(u.plan){u.planStatus='active'}else{u.planStatus='none'}}}
+function hasActivePlan(u){return !!(u&&u.plan&&u.planExpires&&new Date(u.planExpires).getTime()>Date.now())}
+function requireActivePlan(req,res,next){const db=load();const u=db.users.find(x=>x.id===req.session.userId);if(!hasActivePlan(u))return res.status(402).json({error:'Tu plan ha vencido. Renueva tu plan para continuar utilizando las herramientas de THIAGO IA.',code:'PLAN_EXPIRED'});req.user=u;next()}
+function save(db){fs.writeFileSync(DB,JSON.stringify(db,null,2))}
+const plans={basic:{name:'BÁSICO',price:85,imageDaily:50},pro:{name:'PRO',price:160,imageDaily:75},business:{name:'NEGOCIO',price:255,imageDaily:100}};
+function guatemalaUsageKey(now=Date.now()){const gt=new Date(now-6*3600000);if(gt.getUTCHours()<6)gt.setUTCDate(gt.getUTCDate()-1);return gt.toISOString().slice(0,10)}
+function imageUsage(u){const limit=(plans[u?.plan]?.imageDaily||0),key=guatemalaUsageKey();const used=(u?.imageUsageKey===key?Number(u.imageUsed||0):0);const remaining=Math.max(0,limit-used);return {limit,used,remaining,percent:limit?Math.round(remaining/limit*100):0,resetsAt:'6:00 a. m. Guatemala'}}
+function resetImageUsage(u){const key=guatemalaUsageKey();if(u.imageUsageKey!==key){u.imageUsageKey=key;u.imageUsed=0}}
+const adminKey=()=>process.env.ADMIN_KEY||'THIAGO2026';
+function token(){return crypto.randomBytes(24).toString('hex')}
+const sessions=new Map(); function auth(req,res,next){const t=(req.headers.authorization||'').replace('Bearer ',''); const s=sessions.get(t); if(!s)return res.status(401).json({error:'Sesión no válida'}); req.session=s;next()}
+app.get('/api/plans',(req,res)=>res.json(plans));
+app.post('/api/access/request',(req,res)=>{let {email,name='',phone=''}=req.body; email=(email||'').trim().toLowerCase(); if(!email)return res.status(400).json({error:'Correo requerido'}); const db=load(); let u=db.users.find(x=>x.email===email); if(!u){if(!name.trim())return res.json({needsRegistration:true}); u={id:crypto.randomUUID(),email,name:name.trim(),phone:phone.trim(),plan:null,planExpires:null,status:'active',createdAt:new Date().toISOString()}; db.users.push(u)} const code=String(Math.floor(100000+Math.random()*900000)); db.codes=db.codes.filter(x=>x.email!==email||x.used); db.codes.push({id:crypto.randomUUID(),email,code,expiresAt:Date.now()+10*60*1000,used:false,createdAt:new Date().toISOString()}); save(db); res.json({ok:true,email,expiresIn:600,message:'Código generado. Solicítalo al administrador.'})});
+app.post('/api/access/verify',(req,res)=>{const email=(req.body.email||'').trim().toLowerCase(), code=String(req.body.code||''); const db=load(); const c=[...db.codes].reverse().find(x=>x.email===email&&!x.used&&x.code===code); if(!c||c.expiresAt<Date.now())return res.status(400).json({error:'Código incorrecto o vencido'}); c.used=true; const u=db.users.find(x=>x.email===email); save(db); const t=token(); sessions.set(t,{role:'client',userId:u.id,email}); res.json({token:t,user:u})});
+app.post('/api/admin/login',(req,res)=>{if(req.body.key!==adminKey())return res.status(401).json({error:'Clave incorrecta'}); const t=token();sessions.set(t,{role:'admin'});res.json({token:t})});
+app.get('/api/me',auth,(req,res)=>{if(req.session.role==='admin')return res.json({role:'admin'}); const u=load().users.find(x=>x.id===req.session.userId);const user={...u,imageUsage:imageUsage(u)};res.json({role:'client',user})});
+app.post('/api/logout',auth,(req,res)=>{const t=(req.headers.authorization||'').replace('Bearer ','');sessions.delete(t);res.json({ok:true})});
+app.get('/api/admin/dashboard',auth,(req,res)=>{if(req.session.role!=='admin')return res.sendStatus(403); const db=load();res.json({users:db.users,codes:db.codes.filter(x=>!x.used&&x.expiresAt>Date.now()),planRequests:db.planRequests,payments:db.payments,plans})});
+app.post('/api/plans/request',auth,(req,res)=>{if(req.session.role!=='client')return res.sendStatus(403); if(!plans[req.body.plan])return res.status(400).json({error:'Plan inválido'}); const db=load(); const u=db.users.find(x=>x.id===req.session.userId); const kind=!hasActivePlan(u)&&u.plan?'renewal':'plan'; const pending=db.planRequests.find(x=>x.userId===u.id&&x.status==='pending');if(pending)return res.status(409).json({error:'Ya tienes una solicitud pendiente de aprobación.'}); db.planRequests.push({id:crypto.randomUUID(),userId:u.id,email:u.email,currentPlan:u.plan,requestedPlan:req.body.plan,kind,status:'pending',createdAt:new Date().toISOString()});save(db);res.json({ok:true,kind})});
+app.post('/api/admin/plan-request/:id',auth,(req,res)=>{if(req.session.role!=='admin')return res.sendStatus(403); const db=load(), r=db.planRequests.find(x=>x.id===req.params.id); if(!r)return res.sendStatus(404); r.status=req.body.action==='approve'?'approved':'rejected'; if(r.status==='approved'){const u=db.users.find(x=>x.id===r.userId);u.plan=r.requestedPlan;u.planExpires=new Date(Date.now()+30*86400000).toISOString();u.planStatus='active'} save(db);res.json({ok:true})});
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const GENERATED=path.join(__dirname,'generated');if(!fs.existsSync(GENERATED))fs.mkdirSync(GENERATED,{recursive:true});app.use('/generated',express.static(GENERATED));
+function safeBase(s){return String(s||'thiago-ia').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9-_ ]/g,'').trim().replace(/\s+/g,'-').slice(0,50)||'thiago-ia'}
+function cleanExportText(s){return String(s||'').replace(/^#{1,6}\s*/gm,'').replace(/\*\*/g,'').replace(/^\s*[-*•]\s+/gm,'').trim()}
+app.post('/api/export',auth,requireActivePlan,async(req,res)=>{if(req.session.role!=='client')return res.sendStatus(403);try{const format=String(req.body.format||'').toLowerCase(),content=cleanExportText(req.body.content),title=String(req.body.title||'Documento THIAGO IA');if(!content)return res.status(400).json({error:'No hay contenido para exportar'});const id=Date.now()+'-'+crypto.randomBytes(4).toString('hex'),base=safeBase(title),file=path.join(GENERATED,base+'-'+id+'.'+format);let label='archivo';if(format==='docx'){const {Document,Packer,Paragraph,TextRun}=require('docx');const arial12={font:'Arial',size:24};const paras=[new Paragraph({children:[new TextRun({text:title,bold:true,...arial12})]}),...content.split(/\n+/).filter(Boolean).map(x=>new Paragraph({children:[new TextRun({text:x,...arial12})]}))];const buf=await Packer.toBuffer(new Document({styles:{default:{document:{run:arial12}}},sections:[{children:paras}]}));fs.writeFileSync(file,buf);label='Word'}else if(format==='xlsx'){const ExcelJS=require('exceljs');const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('THIAGO IA');ws.columns=[{header:'N.º',key:'n',width:10},{header:'Contenido',key:'content',width:100}];content.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach((x,i)=>ws.addRow({n:i+1,content:x.replace(/^\d+[.)]\s*/, '')}));ws.getRow(1).font={bold:true};ws.views=[{state:'frozen',ySplit:1}];await wb.xlsx.writeFile(file);label='Excel'}else if(format==='pdf'){const PDFDocument=require('pdfkit');await new Promise((resolve,reject)=>{const doc=new PDFDocument({size:'A4',margin:55});const out=fs.createWriteStream(file);out.on('finish',resolve);out.on('error',reject);doc.pipe(out);doc.fontSize(20).text(title,{align:'center'}).moveDown();doc.fontSize(11).text(content,{align:'left',lineGap:4});doc.end()});label='PDF'}else if(format==='pptx'){const pptxgen=require('pptxgenjs');const pptx=new pptxgen();pptx.layout='LAYOUT_WIDE';pptx.author='THIAGO IA';pptx.subject=title;const chunks=content.split(/\n+/).map(x=>x.trim()).filter(Boolean);let slide=pptx.addSlide();slide.addText(title,{x:.6,y:.5,w:12.1,h:.7,fontSize:28,bold:true});let y=1.5,count=0;for(const line of chunks){if(count>=7){slide=pptx.addSlide();slide.addText(title,{x:.6,y:.4,w:12.1,h:.6,fontSize:22,bold:true});y=1.2;count=0}slide.addText(line.replace(/^\d+[.)]\s*/,''),{x:.8,y,w:11.7,h:.65,fontSize:17,breakLine:false,margin:.05});y+=.72;count++}await pptx.writeFile({fileName:file});label='PowerPoint'}else return res.status(400).json({error:'Formato no compatible'});res.json({ok:true,url:'/generated/'+path.basename(file),label})}catch(e){console.error('EXPORT ERROR',e);res.status(500).json({error:e.message||'No se pudo crear el archivo'})}});
 
-const app = express();
-const port = process.env.PORT || 3000;
+app.post('/api/chat',auth,requireActivePlan,async(req,res)=>{if(req.session.role!=='client')return res.sendStatus(403);try{const OpenAI=require('openai');const client=new OpenAI({apiKey:process.env.OPENAI_API_KEY});const content=[{type:'input_text',text:String(req.body.message||'Analiza el archivo adjunto.')}];for(const a of (req.body.attachments||[]).slice(0,4)){if(!a.data)continue;if(String(a.type).startsWith('image/'))content.push({type:'input_image',image_url:a.data});else content.push({type:'input_file',filename:a.name||'archivo',file_data:a.data});}const response=await client.responses.create({model:process.env.OPENAI_MODEL||'gpt-5.4',instructions:'Responde en el idioma solicitado por el usuario. Si no se especifica otro idioma, conserva el idioma indicado en la solicitud y no cambies de idioma por tu cuenta.',input:[{role:'user',content}]});res.json({text:response.output_text||'Sin respuesta'})}catch(e){res.status(500).json({error:e.message||'Error de IA'})}});
+app.post('/api/vectorize',auth,requireActivePlan,async(req,res)=>{if(req.session.role!=='client')return res.sendStatus(403);try{const db=load();const u=db.users.find(x=>x.id===req.session.userId);if(u.plan!=='business')return res.status(403).json({error:'Vectorización profesional disponible únicamente en el plan NEGOCIO.'});const image=String(req.body.image||'');if(!/^data:image\//.test(image))return res.status(400).json({error:'Adjunta una imagen para vectorizar.'});const OpenAI=require('openai');const client=new OpenAI({apiKey:process.env.OPENAI_API_KEY});const prompt=`Analiza la imagen adjunta y conviértela en una ilustración SVG vectorial limpia y profesional. Conserva composición, proporciones, colores y elementos principales. Usa formas vectoriales reales (path, polygon, circle, rect, gradients cuando sean necesarios), no incrustes la imagen raster dentro del SVG. Simplifica ruido pero conserva bordes importantes. Devuelve ÚNICAMENTE el código SVG completo, comenzando con <svg y terminando con </svg>, sin markdown ni explicaciones. Instrucción adicional: ${String(req.body.prompt||'Vectorizar en alta calidad')}`;const out=await client.responses.create({model:process.env.OPENAI_MODEL||'gpt-5.4',input:[{role:'user',content:[{type:'input_text',text:prompt},{type:'input_image',image_url:image}]}]});let svg=String(out.output_text||'').trim().replace(/^```(?:svg)?\s*/i,'').replace(/```$/,'').trim();const a=svg.indexOf('<svg'),b=svg.lastIndexOf('</svg>');if(a<0||b<0)return res.status(500).json({error:'No se pudo producir un SVG vectorial válido.'});svg=svg.slice(a,b+6);res.json({svgDataUrl:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)})}catch(e){console.error('VECTOR ERROR',e);res.status(500).json({error:'No se pudo vectorizar la imagen. '+String(e?.message||'')})}});
 
-app.use(helmet({
-  contentSecurityPolicy: false
-}));
-app.use(express.json({ limit: '1mb' }));
-
-const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  limit: 20,
-  standardHeaders: true,
-  legacyHeaders: false
-});
-app.use('/api', limiter);
-
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('/api/health', (req, res) => {
-  res.json({ ok: true, service: 'THIAGO IA' });
-});
-
-app.post('/api/chat', async (req, res) => {
-  try {
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(503).json({
-        error: 'Falta configurar OPENAI_API_KEY en el servidor.'
-      });
-    }
-
-    const { message, type = 'TEXTO', history = [] } = req.body || {};
-
-    if (!message || typeof message !== 'string' || !message.trim()) {
-      return res.status(400).json({ error: 'Escribe una solicitud.' });
-    }
-
-    if (message.length > 12000) {
-      return res.status(400).json({ error: 'La solicitud es demasiado larga.' });
-    }
-
-    const safeHistory = Array.isArray(history)
-      ? history.slice(-12).filter(x =>
-          x &&
-          (x.role === 'user' || x.role === 'assistant') &&
-          typeof x.content === 'string'
-        )
-      : [];
-
-    const input = [
-      ...safeHistory.map(x => ({
-        role: x.role,
-        content: x.content
-      })),
-      {
-        role: 'user',
-        content: message.trim()
-      }
-    ];
-
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    });
-
-    const response = await client.responses.create({
-      model: process.env.OPENAI_MODEL || 'gpt-5.4',
-      instructions:
-        'Eres THIAGO IA, un asistente útil, claro y profesional. Responde en español salvo que el usuario pida otro idioma. ' +
-        'Ayuda con redacción, ideas, correcciones, investigación general y tareas de productividad. ' +
-        'Si el tipo solicitado es IMAGEN, explica brevemente que esta ruta todavía responde por texto y que el generador de imágenes se conectará por separado.',
-      input
-    });
-
-    const answer = response.output_text?.trim();
-
-    if (!answer) {
-      return res.status(502).json({ error: 'La IA no devolvió una respuesta de texto.' });
-    }
-
-    res.json({
-      ok: true,
-      answer,
-      model: process.env.OPENAI_MODEL || 'gpt-5.4'
-    });
-  } catch (error) {
-    console.error('THIAGO IA error:', error);
-    const status = error?.status && Number.isInteger(error.status) ? error.status : 500;
-    res.status(status).json({
-      error: status === 401
-        ? 'La clave de API no es válida.'
-        : status === 429
-        ? 'Se alcanzó temporalmente el límite de la API. Intenta de nuevo en un momento.'
-        : 'Ocurrió un error al consultar la IA.'
-    });
-  }
-});
-
-app.get('/*splat', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.listen(port, () => {
-  console.log(`THIAGO IA disponible en http://localhost:${port}`);
-});
+app.post('/api/image',auth,requireActivePlan,async(req,res)=>{if(req.session.role!=='client')return res.sendStatus(403);try{const db=load();const u=db.users.find(x=>x.id===req.session.userId);resetImageUsage(u);const usage=imageUsage(u);if(usage.remaining<=0)return res.status(429).json({error:'Tu barra de imágenes llegó a 0%. Se restablece automáticamente a las 6:00 a. m., hora de Guatemala.',code:'IMAGE_DAILY_LIMIT'});const action=String(req.body.action||'generate'),rawPrompt=String(req.body.prompt||'').trim();const orientation=String(req.body.orientation||'unknown'),sourceWidth=Number(req.body.sourceWidth||0),sourceHeight=Number(req.body.sourceHeight||0),aspectRatio=Number(req.body.aspectRatio||1);const editSize=orientation==='vertical'?'1024x1536':orientation==='horizontal'?'1536x1024':'1024x1024';if(!rawPrompt&&action==='generate')return res.status(400).json({error:'Descripción requerida'});const OpenAI=require('openai');const client=new OpenAI({apiKey:process.env.OPENAI_API_KEY});let out;if(action==='generate'){const professional=`Crea una imagen visualmente sobresaliente y profesional. Composición cuidada, iluminación convincente, materiales y texturas detalladas, profundidad, definición alta, acabado publicitario premium y coherencia visual. Evita una composición simple o genérica. Respeta exactamente el contenido solicitado por el usuario. Solicitud: ${rawPrompt}`;out=await client.images.generate({model:process.env.OPENAI_IMAGE_MODEL||'gpt-image-1',prompt:professional,size:'auto',quality:'high'})}else{const data=String(req.body.image||'');const m=data.match(/^data:([^;]+);base64,(.+)$/);if(!m)return res.status(400).json({error:'Imagen adjunta no válida'});const {toFile}=require('openai');const file=await toFile(Buffer.from(m[2],'base64'),'imagen.png',{type:m[1]||'image/png'});let prompt;if(action==='restore'){prompt=`IMPORTANTE: esto es una EDICIÓN CONSERVADORA de la imagen adjunta, no una recreación ni una nueva interpretación. CONSERVA EL LIENZO COMPLETO: fuente ${sourceWidth} x ${sourceHeight}, orientación ${orientation}, relación ${aspectRatio.toFixed(4)}. PROHIBIDO recortar, hacer zoom o perder bordes; si hace falta, amplía lienzo antes que recortar.  Usa la imagen original como referencia visual obligatoria. Mantén exactamente el mismo sujeto/personaje, pose, encuadre, proporciones, dibujo/estilo, vestimenta, accesorios, objetos, texto, colores y composición salvo aquello que el usuario pida cambiar explícitamente. Si el usuario pide solamente más calidad, nitidez o cambiar el fondo, realiza únicamente esos cambios. No conviertas ilustraciones en fotografías ni fotografías en ilustraciones. Restaura profesionalmente esta fotografía antigua conservando estrictamente la identidad y apariencia original de cada persona. Elimina polvo, rayones, grietas, manchas, ruido, deterioro y decoloración. Recupera nitidez, contraste, iluminación y detalles visibles sin inventar rasgos. NO cambies ojos, nariz, boca, mandíbula, orejas, cabello, expresión, edad, cuerpo, pose, ropa ni proporciones. No rejuvenezcas, embellezcas ni sustituyas rostros. Mantén la composición histórica original. ${req.body.colorize?'Coloriza de forma fotográfica natural y creíble, con tonos de piel y materiales realistas.':'Conserva los colores originales de la fotografía; no agregues una colorización artificial.'} Instrucción adicional del usuario: ${rawPrompt||'ninguna'}`}else{prompt=`MODO EDICIÓN ESTRICTA. Trabaja SOBRE la imagen adjunta, no la recrees desde cero. CONSERVA EL LIENZO COMPLETO Y LA ORIENTACIÓN ORIGINAL. La fuente mide ${sourceWidth} x ${sourceHeight}, orientación ${orientation}, relación aproximada ${aspectRatio.toFixed(4)}. El resultado debe conservar la misma orientación y composición completa. PROHIBIDO recortar, hacer zoom, acercar el sujeto, cortar bordes o perder contenido. Si el formato de salida no coincide exactamente, amplía el lienzo de manera natural antes que recortar.  La imagen original manda. Identifica exactamente qué cambios pidió el usuario y modifica SOLO eso. Todo lo no solicitado debe permanecer visualmente igual: identidad, rostro, personaje, anatomía, pose, proporciones, estilo (dibujo/foto/vector), vestimenta, accesorios, objetos, textos, logotipos, encuadre, composición y colores. Si pide calidad, nitidez, definición o resolución, conserva el diseño y mejora limpieza de bordes, claridad y detalle sin redibujar ni reinterpretar. Si pide un fondo de color, reemplaza únicamente el fondo y conserva intacto el sujeto. Si pide restaurar una fotografía, elimina deterioro y mejora claridad preservando identidad, edad, expresión y rasgos; no embellezcas ni inventes. Nunca conviertas ilustración en fotografía ni fotografía en ilustración salvo petición explícita. No agregues ni elimines elementos que no se hayan pedido. Solicitud exacta del usuario: ${rawPrompt}`};out=await client.images.edit({model:process.env.OPENAI_IMAGE_MODEL||'gpt-image-1',image:file,prompt,size:editSize,quality:'high',input_fidelity:'high'})}const b64=out.data&&out.data[0]&&out.data[0].b64_json;if(!b64)return res.status(500).json({error:'No se recibió la imagen'});u.imageUsed=Number(u.imageUsed||0)+1;u.imageUsageKey=guatemalaUsageKey();save(db);res.json({image:'data:image/png;base64,'+b64,imageUsage:imageUsage(u)})}catch(e){console.error('IMAGE ERROR',e);const msg=String(e?.message||'');const code=String(e?.code||e?.error?.code||'');const status=Number(e?.status||500);if(status===429||/insufficient_quota|billing|credit|quota/i.test(code+' '+msg)){return res.status(503).json({error:'El servicio de imágenes no tiene saldo API disponible o alcanzó un límite del proveedor. Esto es independiente de tu barra diaria de THIAGO IA.',code:'PROVIDER_CREDIT_LIMIT'})}res.status(500).json({error:'No se pudo procesar la imagen. '+msg,code:'IMAGE_PROVIDER_ERROR'})}});
+app.get('/*splat',(req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
+app.listen(process.env.PORT||3000,()=>console.log('THIAGO IA V30 disponible'));

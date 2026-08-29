@@ -1,15 +1,9 @@
-# THIAGO IA V27 — Diseño aprobado + fondo original incrustado
+# THIAGO IA V31.7
 
-Esta versión toma la V25 real y aplica el diseño aprobado por el usuario.
-
-Puntos importantes:
-- El fondo original `fondos(4).png` está INCRUSTADO dentro del HTML.
-- Por eso el fondo no depende de una ruta externa y debe verse incluso al abrir el HTML desde Descargas.
-- Se conserva el backend de IA real.
-- Herramientas, Historial, Planes, Mi cuenta, Configuración y Ayuda están dentro de botones/paneles.
-- El chat continúa usando `/api/chat` cuando el proyecto se ejecuta con el servidor.
-
-Render:
-Build Command: npm install
-Start Command: npm start
-Variable secreta: OPENAI_API_KEY
+- Diseño ajustado al mockup aprobado: lienzo angosto, centrado y profesional.
+- Conserva el fondo original de selva/cascada y Renétol.
+- Imágenes pequeñas dentro del chat y completas, sin recorte.
+- Detecta medidas escritas como 100x100 cm, 50x70 cm, 21x9 cm o medidas en px.
+- La medida solicitada manda sobre la orientación automática y conserva la relación de aspecto.
+- Si no se indica medida, conserva la orientación/proporción original de la imagen adjunta.
+- Conserva idioma fijo, Word Arial 12, arrastrar/Ctrl+V y Vectorizar premium.
