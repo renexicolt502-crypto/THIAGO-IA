@@ -496,17 +496,20 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px 7px
   <div class="adminGrid">
     <aside class="sidebar">
       <div class="adminTitle"><div class="logo" style="width:37px;height:37px">A</div><div><b>ADMIN</b><div class="mini">Panel de control</div></div></div>
-      <div class="sideitem active">👥 Clientes</div><div class="sideitem">▣ Solicitudes de Plan</div><div class="sideitem">♙ Usuarios</div><div class="sideitem">▰ Pagos</div><div class="sideitem">↻ Renovaciones</div><div class="sideitem">⚙ Configuración</div><div class="sideitem red" onclick="adminLogout()">⏻ Cerrar sesión</div>
+      <div class="sideitem active" onclick="adminNav('clientes',this)">👥 Clientes</div><div class="sideitem" onclick="adminNav('solicitudes',this)">▣ Solicitudes de Plan</div><div class="sideitem" onclick="adminNav('usuarios',this)">♙ Usuarios</div><div class="sideitem" onclick="adminNav('pagos',this)">▰ Pagos</div><div class="sideitem" onclick="adminNav('renovaciones',this)">↻ Renovaciones</div><div class="sideitem" onclick="adminNav('configuracion',this)">⚙ Configuración</div><div class="sideitem red" onclick="adminLogout()">⏻ Cerrar sesión</div>
     </aside>
     <main class="mainAdmin">
-      <div class="panelHead"><h3>👥 Clientes Registrados</h3><input id="searchClient" class="search" placeholder="⌕ Buscar cliente..." oninput="renderAdmin()"></div>
-      <table><thead><tr><th>Cliente</th><th>Plan</th><th>Pagó</th><th>Uso 5 horas</th><th>Uso semanal</th><th>Consumo interno</th><th>Vence</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="clientRows"></tbody></table>
-      <div style="margin-top:18px;border-top:1px solid rgba(255,255,255,.07);padding-top:14px">
+      <div id="adminClientsPanel">
+        <div class="panelHead"><h3>👥 Clientes Registrados</h3><input id="searchClient" class="search" placeholder="⌕ Buscar cliente..." oninput="renderAdmin()"></div>
+        <table><thead><tr><th>Cliente</th><th>Plan</th><th>Pagó</th><th>Uso 5 horas</th><th>Uso semanal</th><th>Consumo interno</th><th>Vence</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="clientRows"></tbody></table>
+      </div>
+      <div id="adminRequestsPanel" style="margin-top:18px;border-top:1px solid rgba(255,255,255,.07);padding-top:14px">
         <div class="panelHead"><h3>▣ Solicitudes de Plan Pendientes</h3><span class="mini">Primero confirme el pago y luego active 30 días</span></div>
         <div id="requestList"></div>
       </div>
+      <div id="adminExtraPanel" class="hidden"></div>
     </main>
-    <aside class="renewals"><h3>▣ Próximas Renovaciones</h3><div id="renewalList"></div><button class="btn blue" style="width:100%;margin-top:9px">◉ VER TODAS</button></aside>
+    <aside id="adminRenewalsPanel" class="renewals"><h3>▣ Próximas Renovaciones</h3><div id="renewalList"></div><button class="btn blue" style="width:100%;margin-top:9px" onclick="adminNav('renovaciones')">◉ VER TODAS</button></aside>
   </div>
 </section>
 
@@ -1187,6 +1190,51 @@ function v27ToggleHelp(){v27Toggle('v27Help')}
 function v27Home(){v27ClosePanels();let e=document.getElementById('chatWorkspace');if(e)e.scrollIntoView({behavior:'smooth',block:'center'})}
 function v27Prompt(text){let e=document.getElementById('clientRequestText');if(e){e.value=text;e.focus();}}
 
+
+
+/* ===== ADMIN NAV FIX ===== */
+function setAdminActive(el){
+  document.querySelectorAll('#adminShell .sideitem').forEach(x=>{if(!x.classList.contains('red'))x.classList.remove('active')});
+  if(el)el.classList.add('active');
+}
+function adminNav(section,el){
+  setAdminActive(el);
+  const clients=document.getElementById('adminClientsPanel');
+  const requests=document.getElementById('adminRequestsPanel');
+  const extra=document.getElementById('adminExtraPanel');
+  const renew=document.getElementById('adminRenewalsPanel');
+  if(!clients||!requests||!extra||!renew)return;
+  clients.classList.add('hidden'); requests.classList.add('hidden'); extra.classList.add('hidden'); renew.classList.add('hidden');
+  extra.innerHTML='';
+  if(section==='clientes'){
+    clients.classList.remove('hidden'); requests.classList.remove('hidden'); renew.classList.remove('hidden'); renderAdmin();
+  }else if(section==='solicitudes'){
+    requests.classList.remove('hidden'); renderAdmin();
+  }else if(section==='usuarios'){
+    clients.classList.remove('hidden'); renderAdmin();
+  }else if(section==='pagos'){
+    extra.classList.remove('hidden');
+    const rows=db.requests.map(r=>`<tr><td>${r.name}</td><td>${r.email}</td><td>${r.plan}</td><td>Q${r.price}</td><td><span class="${r.paid?'state':'state pending'}">${r.paid?'CONFIRMADO':'PENDIENTE'}</span></td></tr>`).join('') || '<tr><td colspan="5" class="mini">No hay pagos registrados.</td></tr>';
+    extra.innerHTML=`<div class="panelHead"><h3>▰ Pagos</h3><span class="mini">Control de pagos de solicitudes</span></div><table><thead><tr><th>Cliente</th><th>Correo</th><th>Plan</th><th>Monto</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }else if(section==='renovaciones'){
+    renew.classList.remove('hidden'); renderAdmin();
+  }else if(section==='configuracion'){
+    extra.classList.remove('hidden');
+    extra.innerHTML=`<div class="panelHead"><h3>⚙ Configuración</h3><span class="mini">Opciones del administrador</span></div><div class="requestItem"><div><b>THIAGO IA</b><div class="mini">Panel administrativo activo</div></div><div><span class="state">ACTIVO</span></div></div><div class="note" style="margin-top:14px">La clave del administrador y otras opciones avanzadas se configurarán de forma segura desde el servidor.</div>`;
+  }
+}
+function adminLogout(){
+  db.currentClient=null; save();
+  document.getElementById('adminShell').classList.add('hidden');
+  document.getElementById('clientArea')?.classList.add('hidden');
+  document.getElementById('publicApp').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.querySelector('.hero')?.classList.remove('hidden');
+  document.querySelector('header')?.classList.remove('hidden');
+  document.querySelector('footer')?.classList.remove('hidden');
+  setLoginMode('admin');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 </script>
 </body>
 </html>
