@@ -1,12 +1,10 @@
-# THIAGO IA V31.4 — Idioma fijo
+# THIAGO IA V31.6
 
-Cambios:
-- Español queda como idioma predeterminado.
-- Nuevo apartado "Idioma" en el menú del cliente.
-- El idioma elegido se guarda en el navegador y permanece en próximas sesiones.
-- Chat, investigación y documentos responden en el idioma seleccionado, salvo que el usuario pida explícitamente otro idioma.
-- Traducción respeta el idioma destino solicitado.
-- Conserva arrastrar/soltar imágenes, Ctrl+V, lienzo amplio y preservación de orientación de V31.3.
-
-
-V31.5: Los documentos Word generados usan Arial tamaño 12 por defecto en todo el contenido.
+Cambios principales:
+- Área de trabajo más compacta y profesional, conservando el fondo original de THIAGO IA.
+- Imágenes y vistas previas más pequeñas dentro del chat; conservan proporción y no se recortan.
+- Vectorización profesional disponible exclusivamente para plan NEGOCIO.
+- BÁSICO y PRO ven la función bloqueada y son dirigidos a Planes.
+- NEGOCIO puede subir/arrastrar una imagen, pedir vectorización y descargar un SVG vectorial.
+- Se conservan idioma persistente, Word Arial 12, drag & drop, Ctrl+V, orientación original y demás funciones previas.
+- El nombre del cliente se muestra desde el nombre registrado (por ejemplo: René Tot).
