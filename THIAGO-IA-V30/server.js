@@ -6,7 +6,7 @@ function expirePlans(db){const now=Date.now();for(const u of (db.users||[])){if(
 function hasActivePlan(u){return !!(u&&u.plan&&u.planExpires&&new Date(u.planExpires).getTime()>Date.now())}
 function requireActivePlan(req,res,next){const db=load();const u=db.users.find(x=>x.id===req.session.userId);if(!hasActivePlan(u))return res.status(402).json({error:'Tu plan ha vencido. Renueva tu plan para continuar utilizando las herramientas de THIAGO IA.',code:'PLAN_EXPIRED'});req.user=u;next()}
 function save(db){fs.writeFileSync(DB,JSON.stringify(db,null,2))}
-const plans={basic:{name:'BÁSICO',price:85,imageDaily:10},pro:{name:'PRO',price:160,imageDaily:20},business:{name:'NEGOCIO',price:255,imageDaily:30}};
+const plans={basic:{name:'BÁSICO',price:85,imageDaily:50},pro:{name:'PRO',price:160,imageDaily:75},business:{name:'NEGOCIO',price:255,imageDaily:100}};
 function guatemalaUsageKey(now=Date.now()){const gt=new Date(now-6*3600000);if(gt.getUTCHours()<6)gt.setUTCDate(gt.getUTCDate()-1);return gt.toISOString().slice(0,10)}
 function imageUsage(u){const limit=(plans[u?.plan]?.imageDaily||0),key=guatemalaUsageKey();const used=(u?.imageUsageKey===key?Number(u.imageUsed||0):0);const remaining=Math.max(0,limit-used);return {limit,used,remaining,percent:limit?Math.round(remaining/limit*100):0,resetsAt:'6:00 a. m. Guatemala'}}
 function resetImageUsage(u){const key=guatemalaUsageKey();if(u.imageUsageKey!==key){u.imageUsageKey=key;u.imageUsed=0}}
