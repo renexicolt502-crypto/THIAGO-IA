@@ -1,10 +1,14 @@
-# THIAGO IA V30.7 — Correcciones solicitadas
+# THIAGO IA V30.8
 
-Cambios incluidos:
-- Fondo mucho más visible, conservando exactamente el encuadre/zoom de V30.6.
-- Se eliminó el botón Inicio del menú del cliente. Nuevo chat queda como acción explícita para comenzar otro trabajo.
-- Historial incorpora “Eliminar todo” con confirmación.
-- Adjuntar una imagen o documento NO ejecuta ninguna acción por sí solo. El cliente debe escribir una instrucción y enviar.
-- Restaurar fotografía exige una instrucción escrita antes de procesar.
-- La barra diaria de imágenes rinde mucho más: Básico 50 operaciones/día, PRO 75, Negocio 100. Se reinicia a las 6:00 a. m. hora de Guatemala. El texto no consume esta barra.
-- Se conservan login/código, administrador, planes, vencimientos, renovaciones, chat, herramientas, generación/edición/restauración de imágenes y documentos.
+Actualización sobre V30.7, conservando sus funciones.
+
+## Cambios
+- Paneles más transparentes para resaltar el fondo sin cambiar su encuadre.
+- Pegar imágenes desde el portapapeles con Ctrl+V. La imagen solo se adjunta; no se procesa hasta escribir una instrucción y enviarla.
+- Investigación con formato limpio: numeración 1., 2., 3. y puntuación normal, sin asteriscos decorativos.
+- Exportación real y descargable a Word (.docx), Excel (.xlsx), PDF (.pdf) y PowerPoint (.pptx).
+- Si el usuario dice “ahora pásamelo a Word/Excel/PDF/PowerPoint”, usa el último resultado de la conversación.
+- Si pide contenido y formato en la misma instrucción, primero genera el contenido y luego crea el archivo.
+
+## Render
+No contiene claves. Mantener OPENAI_API_KEY y OPENAI_MODEL en Environment de Render. `npm install` instalará las dependencias nuevas automáticamente.
