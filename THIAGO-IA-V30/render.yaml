@@ -1,3 +1,9 @@
+databases:
+  - name: thiago-ia-db
+    plan: free
+    databaseName: thiago_ia
+    user: thiago_ia
+
 services:
   - type: web
     name: thiago-ia
@@ -12,3 +18,7 @@ services:
         value: gpt-5.4
       - key: ADMIN_KEY
         sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: thiago-ia-db
+          property: connectionString
