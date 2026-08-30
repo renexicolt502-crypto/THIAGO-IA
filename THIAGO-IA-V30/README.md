@@ -1,17 +1,31 @@
-# THIAGO IA V32.7 — Vencimiento y renovación
+# THIAGO IA V33 FINAL
 
-Base: V32.6 estable.
+Actualización acumulada basada en V32.7.
 
-Cambios enfocados únicamente en ciclo de plan:
-- El plan vence automáticamente al llegar `planExpires`.
-- Chat, imágenes, vectorización y exportaciones quedan bloqueados cuando no hay plan vigente.
-- El cliente conserva su correo + código permanente; el vencimiento no elimina ni cambia ese código.
-- La interfaz muestra claramente PLAN VENCIDO y Renovación requerida.
-- El plan actual muestra RENOVAR PLAN incluso si ya venció.
-- Renovación anticipada del mismo plan suma 30 días desde el vencimiento actual si aún está vigente.
-- Renovación de un plan ya vencido suma 30 días desde el momento de aprobación.
-- La aprobación de pago/renovación reactiva el plan y registra la fecha de aprobación.
-- Administración conserva Usuarios, Pagos, Renovaciones, Configuración y el diseño NEÓN PREMIUM.
-- PostgreSQL y DATABASE_URL se mantienen sin cambios.
+Incluye:
+- Acceso permanente por correo + código de 6 dígitos.
+- PostgreSQL y persistencia existente.
+- Vencimiento automático de planes.
+- Renovación por 30 días conservando el código permanente.
+- Cambio de plan BÁSICO / PRO / NEGOCIO.
+- Límites diarios de imágenes 50 / 75 / 100 y reinicio a las 6:00 a. m. Guatemala.
+- Administración de usuarios:
+  - editar fecha de vencimiento
+  - suspender/reactivar
+  - generar nuevo código permanente
+  - eliminar usuario
+  - ver ACTIVO / VENCIDO / SUSPENDIDO
+- Dashboard ampliado:
+  - usuarios
+  - activos
+  - vencidos
+  - pagos pendientes
+  - ingresos aprobados
+  - códigos pendientes
+- Exportación de copia de seguridad JSON desde Usuarios.
+- Se conserva el diseño NEÓN PREMIUM.
+- Se conservan pagos/comprobantes y configuración bancaria.
+- No requiere volver a configurar DATABASE_URL.
 
-Precios conservados: BÁSICO Q85, PRO Q180, NEGOCIO Q300 / 30 días.
+IMPORTANTE:
+No cambie Root Directory en Render. Continúe usando THIAGO-IA-V30.
