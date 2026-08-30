@@ -1,13 +1,17 @@
-# THIAGO IA V32.6 — Acceso permanente
+# THIAGO IA V32.7 — Vencimiento y renovación
 
-Base: V32.5 con PostgreSQL permanente.
+Base: V32.6 estable.
 
-## Cambio solicitado
-- El primer código de 6 dígitos sigue siendo aprobado/entregado por Administración y vence en 10 minutos antes de su primer uso.
-- Al validarlo correctamente por primera vez, ese mismo código queda guardado en PostgreSQL como código de acceso permanente del cliente.
-- Después de cerrar sesión, el cliente entra con su correo + el mismo código permanente, sin solicitar otro código al administrador.
-- Renovar el plan conserva el mismo acceso permanente.
-- Se conserva el diseño NEÓN PREMIUM, pagos, comprobantes, planes, administración, historial, herramientas y demás funciones de V32.5.
+Cambios enfocados únicamente en ciclo de plan:
+- El plan vence automáticamente al llegar `planExpires`.
+- Chat, imágenes, vectorización y exportaciones quedan bloqueados cuando no hay plan vigente.
+- El cliente conserva su correo + código permanente; el vencimiento no elimina ni cambia ese código.
+- La interfaz muestra claramente PLAN VENCIDO y Renovación requerida.
+- El plan actual muestra RENOVAR PLAN incluso si ya venció.
+- Renovación anticipada del mismo plan suma 30 días desde el vencimiento actual si aún está vigente.
+- Renovación de un plan ya vencido suma 30 días desde el momento de aprobación.
+- La aprobación de pago/renovación reactiva el plan y registra la fecha de aprobación.
+- Administración conserva Usuarios, Pagos, Renovaciones, Configuración y el diseño NEÓN PREMIUM.
+- PostgreSQL y DATABASE_URL se mantienen sin cambios.
 
-## Render
-Mantener `DATABASE_URL` configurada. No subir credenciales a GitHub.
+Precios conservados: BÁSICO Q85, PRO Q180, NEGOCIO Q300 / 30 días.
