@@ -1,31 +1,13 @@
-# THIAGO IA V33 FINAL
-
-Actualización acumulada basada en V32.7.
+# THIAGO IA V33 FINAL — PWA + SESIONES PERSISTENTES
 
 Incluye:
-- Acceso permanente por correo + código de 6 dígitos.
-- PostgreSQL y persistencia existente.
-- Vencimiento automático de planes.
-- Renovación por 30 días conservando el código permanente.
-- Cambio de plan BÁSICO / PRO / NEGOCIO.
-- Límites diarios de imágenes 50 / 75 / 100 y reinicio a las 6:00 a. m. Guatemala.
-- Administración de usuarios:
-  - editar fecha de vencimiento
-  - suspender/reactivar
-  - generar nuevo código permanente
-  - eliminar usuario
-  - ver ACTIVO / VENCIDO / SUSPENDIDO
-- Dashboard ampliado:
-  - usuarios
-  - activos
-  - vencidos
-  - pagos pendientes
-  - ingresos aprobados
-  - códigos pendientes
-- Exportación de copia de seguridad JSON desde Usuarios.
-- Se conserva el diseño NEÓN PREMIUM.
-- Se conservan pagos/comprobantes y configuración bancaria.
-- No requiere volver a configurar DATABASE_URL.
+- Aplicación web instalable (PWA) para abrir THIAGO IA como app.
+- Iconos 192 y 512, manifest y service worker.
+- Sesiones de cliente y administrador persistentes por 30 días, almacenadas en PostgreSQL mediante hash del token.
+- Cerrar sesión invalida la sesión guardada.
+- Reinicios o suspensión/activación de Render ya no deben expulsar al cliente mientras su sesión siga vigente.
+- El navegador conserva el token en almacenamiento local para reabrir la app sin volver a iniciar sesión.
+- Al solicitar un plan, la pantalla de pago preselecciona ese plan.
+- Conserva pagos, comprobantes, PostgreSQL, código permanente, planes, límites y diseño NEÓN PREMIUM.
 
-IMPORTANTE:
-No cambie Root Directory en Render. Continúe usando THIAGO-IA-V30.
+Despliegue: reemplazar el contenido de la carpeta existente THIAGO-IA-V30 en GitHub y dejar que Render haga Auto-Deploy. No cambie DATABASE_URL ni las demás variables de entorno.
